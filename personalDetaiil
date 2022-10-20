@@ -73,4 +73,121 @@ To Delete Tag:
 - [x] Run this command in IntelliJ terminal
     - [ ] Git tag -d <tagname> - this will delete the tag in local
     - [ ] git push --delete origin <tagname> - this will delete tag from remote
+    
+    SpellChecker:
+-------------
+ Levenshtein distance is a string metric for measuring the difference between two sequences. Informally, the Levenshtein distance between two words is the minimum number of single-character edits (insertions, deletions or substitutions) required to change one word into the other. 
+
+Nested Object Queries:
+----------------------
+Child and parent document,
+1.	To return child documents based on an attribute in parent doc is: {!child of=scope:pp}New_Arrivals:1
+child of : returns child document based on the given filter condition - scope:pp is to identify the parent document. 
+New_Arrivals:1 is a parent attribute and it is not available in child docs. 
+
+2.	To return parent documents based on an attribute in child doc is : {!parent which=scope:pp}Size:XL
+
+To sort based on values: 
+--------------------------
+boost=Gender_faceted:("girls")^=3
+sort_gender={!lucene v=$boost}
+sort=query($sort_gender) desc
+fl=query($sort_gender)
+
+Conditional Query:
+-------------------
+Sort= if(gt(query($sort_boost_ner_0),0),999,-999) desc/asc
+
+if (query($sort_boost_ner_0) > 0) {
+	value = 999
+} else {
+	value = -999
+}
+
+Term Query: Can be used as feature for LTR
+------------
+a={!termHit f='Gender'}womens – returns 1 or 0
+
+boost=name:("male")^=3
+sort_gender={!lucene v=$boost}
+sort=query($sort_gender) desc
+fl=query($sort_gender)
+
+Analysis Solr Query:
+--------------------
+/solr/productsLive/analysis/field?analysis.fieldtype=TxtField&wt=json&analysis.fieldvalue=running
+
+Steps LTR Model
+------------------
+1. Identify the features
+2. Clickstream data - generate the training set
+3. Generate model.xml
+java -Xmx8G -jar /Users/pd1/search-repo/search-data-load/search-ltr/lib/RankLib-2.9.jar -train /out/training_set.txt -ranker 6 -save /out/LTRmodel.xml -metric2t NDCG@10 -tvs 0.75 -tree 100 -leaf 100
+4. Converting it to json - Search-ltr
+5. uploading to solr - ltr-resource-loader
+
+
+Scale -  1 to 4
+(clickthrough value/Maxof clickthroughs) * 4
+
+Autosuggest
+-----------
+Add to cart
+Add to bag
+No. of searches
+RPS - Revenue
+
+
+To start organic search solr in local:
+
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044 -Dsolr.log.dir=/Users/pd1/Solr_search/Helios_Nodes/node1/logs -Djetty.port=8983 -Dbootstrap_conf=true -Djetty.home=/Users/pd1/solr-8.2.0/server -DzkHost=localhost:2181 -DnumShards=1 -Dfile.encoding=UTF8 -Dsun.jnu.encoding=UTF8 -Dsolr.solr.home=/Users/pd1/Solr_search/Helios_Nodes/node1/ -Dsolr.install.dir=/Users/pd1/solr-8.2.0/ -jar start.jar --module=http
+
+
+Start solr in cloud mode: ./solr -c -z localhost:2181
+To restart: ./solr restart -c -z localhost:2181
+
+Upconfig command: 
+./zkcli.sh -zkhost localhost:2181 -cmd upconfig -confdir /Users/pd1/Pavithra/solr-8.2.0/server/solr/predictive_shard1_replica_n1/conf -confname predictive
+
+Downconfig command: 
+./zkcli.sh -zkhost localhost:2181 -cmd downconfig -confdir /Users/pd1/Pavithra/solr-8.2.0/server/solr/predictive_shard1_replica_n1/conf -confname predictive
+
+Delete By Query:
+curl http://localhost:8983/solr/predictive/update?commit=true -H "Content-Type: text/xml" --data-binary '<delete><query>*:*</query></delete>'
+
+
+curl http://localhost:8983/solr/products_A/update?commit=true -H "Content-Type: text/xml" --data-binary '<delete><query>BLOCK_ID:ppr5007933438</query></delete>'
+
+curl http://localhost:8983/solr/products_A/update?optimize=true
+
+
+Parent-child Queries:
+----------------------
+(Brand_tokenized:nike^=0.5 OR Brand_tokenized:jeans^=0.5)
+
+
+"((Brand_tokenized:nike^=0.5 OR Brand_tokenized:jeans^=0.5)) AND filter(scope:lot)"
+
+
+{!parent score=max which=scope:pp v=$toParentQuery0}
+
+{!func}div(rint(linear($roundQuery1,100,0)),100)
+
+{!func}div(rint(linear($roundQuery1,100,0)),100)
+
+q={!hitInFieldPercent+f%3D'Brand'}["nike+jeans"]&df=_text_&indent=true&echoParams=explicit&disableConfigCheck=true&fl={!hitInFieldPercent+f%3D'Brand'}["nike+jeans"]&rows=10&wt=json&processor=words-counting-processor&toParentQuery0=((Brand_tokenized:nike^%3D0.5+OR+Brand_tokenized:jeans^%3D0.5))+AND+filter(scope:lot)&roundQuery1={!parent+score%3Dmax+which%3Dscope:pp+v%3D$toParentQuery0}
+
+
+type=func&v=div(rint(linear($roundQuery1,100,0)),100)
+
+
+type=parent&score=max&which=scope:pp&v=((Brand_tokenized:nike^%3D0.5+OR+Brand_tokenized:jeans^%3D0.5))+AND+filter(scope:lot)
+
+
+{q={!hitInFieldPercent+f%3D'Brand'}["nike+jeans"]&df=_text_&indent=true&echoParams=explicit&disableConfigCheck=true&fl={!hitInFieldPercent+f%3D'Brand'}["nike+jeans"]&rows=10&wt=json&processor=words-counting-processor&toParentQuery0=((Brand_tokenized:nike^%3D0.5+OR+Brand_tokenized:jeans^%3D0.5))+AND+filter(scope:lot)&roundQuery1={!parent+score%3Dmax+which%3Dscope:pp+v%3D$toParentQuery0}}
+
+	
+ToParentBlockJoinQuery (+((ConstantScore(Brand_tokenized:nike))^0.5 (ConstantScore(Brand_tokenized:jeans))^0.5) +filter(scope:lot))
+
+
 
