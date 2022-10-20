@@ -36,3 +36,41 @@ https://aws.amazon.com/
 https://www.aws.training/
 
 Comparecloud.in
+
+
+
+Git Commands
+-------------
+Rebase feature branch with develop:
+git checkout develop 
+git pull origin develop -> this fetches the remote version of the develop branch and merges it (or rebases it, depending on your pull strategy) into/onto your local branch. This way the local and the remote versions of develop are the same 
+git checkout feature-brach 
+git rebase develop
+git push origin feature-branch-name --force
+
+Squash Commit :
+
+$ git rebase -i HEAD~4 (4 is the number of commits to be squashed)
+* At the interactive screen that opens up, replace “pick” with “squash” at the top for all the commits that you want to squash, except first commit. 
+* Save and close the editor through esc --> :wq 
+Push to the remote using:
+$ git push origin branch-name --force
+
+
+To Create Tag:
+- [x] Create release branch from Stash. Select Branch type as “release”
+- [x] Once the branch is created, run the following commands in intelliJ
+    - [ ] git fetch - to fetch the branch names
+    - [ ] git checkout <branch name> - to checkout that branch
+    - [ ] Check whether the expected changes are available.
+    - [ ] git status - Check whether there are any local changes are there. If yes, revert it. 
+    - [ ] git tag <tag name> - create tag
+    - [ ] git push —tag  - command to push the tag to origin
+- [x] Open stash and check the tag
+- [x] Trigger build tag from Jenkins
+
+To Delete Tag:
+- [x] Run this command in IntelliJ terminal
+    - [ ] Git tag -d <tagname> - this will delete the tag in local
+    - [ ] git push --delete origin <tagname> - this will delete tag from remote
+
