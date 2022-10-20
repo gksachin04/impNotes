@@ -1,0 +1,38 @@
+Creating the Tags
+git tag -a 1.4.3 -m "new tag 1.4.3"
+git tag
+git push origin <tag no>
+
+Squash Commit :
+$ git rebase -i HEAD~4
+* At the interactive screen that opens up, replace pick with squash at the top for all the commits that you want to squash. 
+* Save and close the editor through esc --> :wq 
+Push to the remote using:
+$ git push origin branch-name --force
+
+PERSONAL
+https://etc.axisbank.co.in/ETC/CustomerRecharge/CustomerRechargeDetails
+Fasttag
+walletId:190001611334
+Id:190001611334
+19000009310610
+Recharge@01
+
+
+Spring Professional certificate:
+Clearit@1
+
+100886542315
+Mysore@01
+
+Udemy reds
+cgakshath@gmail.com
+
+https://youtube.com/c/CodeOpsTech The
+
+https://www.slideshare.net/CodeOps/automated-refactoring-with-intellij-idea-232216961
+
+https://aws.amazon.com/
+https://www.aws.training/
+
+Comparecloud.in
